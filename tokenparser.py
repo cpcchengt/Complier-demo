@@ -1,55 +1,77 @@
 import os
-from . import tokenizer
+from token.tokenizer import tokenizer
+
+
+
+def walk(tokens, current):
+    token = tokens[current]
+    # print('-----')
+    # print(current, tokens[current])
+    if token['type'] == 'number' :
+        current+=1
+        # print('-----')
+        # print(current, tokens[current])
+        return {
+            'type': 'NumberLiteral',
+            'value': token['value'],
+        }, current
+    
+
+
+    if token['type'] == 'string':
+        current+=1
+        # print('-----')
+        # print(current, tokens[current])
+        return {
+            'type': 'StringLiteral',
+            'value': token['value'],
+        }, current
+
+
+    if token['type'] == 'paren' and token['value'] == '(':
+        current +=1 
+        # print('-----')
+        # print(current, tokens[current])
+        token = tokens[current]
+
+
+        node = {
+            'type': 'CallExpression',
+            'name': token['value'],
+            'params': [],
+        }
+
+        current +=1 
+        # print('-----')
+        # print(current, tokens[current])
+        token = tokens[current]
+
+
+        while token['type'] != 'paren' or token['type'] == 'paren' and token['value'] != ')':
+            result, current = walk(tokens, current)
+            node['params'].append(result)
+            token = tokens[current]
+
+
+        current +=1
+        return node, current
+
+    raise TypeError(token['type'])
+
+
+
+
+
+
+
+
+
+
+
 
 def parser(tokens) :
-    current = 0;
 
-
-    def walk():
-        token = tokens[current]
-        if token['type'] == 'number' :
-            current+=1
-
-            return {
-                'type': 'NumberLiteral',
-                'value': token['value'],
-            };
-        
-
-
-        if token['type'] == 'string':
-            current+=1
-
-            return {
-                'type': 'StringLiteral',
-                'value': token['value'],
-            }
-
-
-        if token['type'] == 'paren' and token['value'] == '(':
-            current +=1 
-            token = tokens[current]
-
-
-            node = {
-                'type': 'CallExpression',
-                'name': token['value'],
-                'params': [],
-            };
-
-            current +=1 
-            token = tokens[current]
-
-
-            while token['type'] != 'paren' or token['type'] == 'paren' and token['value'] != ')':
-                node['params'].append(walk())
-                token = tokens[current]
-
-
-            current +=1
-            return node
-
-        raise TypeError(token['type'])
+    current = 0
 
     ast = {
         'type': 'Program',
@@ -58,12 +80,14 @@ def parser(tokens) :
 
 
     while current < len(tokens):
-        ast['body'].append(walk())
+        result, current = walk(tokens, current)
+        ast['body'].append(result)
     
     return ast
 
 if __name__ == "__main__":
-    input = 'hello "world"'
+    input = '(add 2 (subtract 4 2))'
     print(tokenizer(input))
-    print(parser(tokenizer.tokenizer(input)))
+    print(parser(tokenizer(input)))
+    print(walk(tokenizer(input),0))
 

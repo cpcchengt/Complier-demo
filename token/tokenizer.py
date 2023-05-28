@@ -74,6 +74,6 @@ def tokenizer(input):
     return tokens
 
 if __name__ == "__main__":
-    input = 'hello "world"'
+    input = '(add 2 (subtract 4 2))'
     print(tokenizer(input))
 
