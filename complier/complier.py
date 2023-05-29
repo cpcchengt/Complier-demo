@@ -234,7 +234,6 @@ def transformer(ast):
 
     traverser(ast, visitor)
 
-    print(ast)
     return newAst
 
 
